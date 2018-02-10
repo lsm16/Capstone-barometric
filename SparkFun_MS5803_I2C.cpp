@@ -47,9 +47,11 @@ void MS5803::reset(void)
 uint8_t MS5803::begin(void)
 // Initialize library for subsequent pressure measurements
 {
+	// int error = 0; // proposed change
 	uint8_t i;
 	for(i = 0; i <= 7; i++){
 		sendCommand(CMD_PROM + (i * 2)); /*here - modify to return error code*/
+		// error = sendCommand(CMD_PROM + (i * 2)); // proposed change
 		Wire.requestFrom( _address, 2);
 		uint8_t highByte = Wire.read();
 		uint8_t lowByte = Wire.read();
@@ -62,6 +64,7 @@ uint8_t MS5803::begin(void)
 	}
 
 	return 0;
+	//return error
 }
 
 float MS5803::getTemperature(temperature_units units, precision _precision)
@@ -194,11 +197,13 @@ uint32_t MS5803::getADCconversion(measurement _measurement, precision _precision
 }
 
 /*here - modify to return error code*/
+// int MS5803::sendCommand(uint8_t command) // proposed change
 void MS5803::sendCommand(uint8_t command)
 {
 	Wire.beginTransmission( _address);
 	Wire.write(command);
 	Wire.endTransmission();
+	// int error = Wire.endTransmission(); // proposed change
 	//0:success
 	//1:data too long to fit in transmit buffer
 	//2:received NACK on transmit of address
