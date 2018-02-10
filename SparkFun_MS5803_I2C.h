@@ -93,6 +93,7 @@ class MS5803
 
 		void getMeasurements(precision _precision);
 /*here - modify to return error code*/
+		// int sendCommand(uint8_t command);	// proposed change
 		void sendCommand(uint8_t command);	// General I2C send command function
 		uint32_t getADCconversion(measurement _measurement, precision _precision);	// Retrieve ADC result
 
