@@ -9,12 +9,15 @@
 /*** Defines ****/
 #define TCAADDR 0x70          // Multiplexer address
 #define NUMBEROFSENSORS 8     // Number of barometric sensors in use
+#define MBARTOPSI 0.0145038   // Conversion constant from mbar to psi
  
 /*** Globals ***/
 MS5803 Bar[NUMBEROFSENSORS];              // Array of barometric sensor IDs
+float pocketarea[NUMBEROFSENSORS] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 float temperature_c, temperature_f;
-double pressure_abs, pressure_relative, 
+double pressure_mbar, pressure_relative, pressure_psi
 double altitude_delta, pressure_baseline;
+double force_lbs, force_N;
 double base_altitude = 1655.0;            // Altitude of SparkFun's HQ in Boulder, CO. in (m)
 
 /* Adafruit multiplexer helper method */
@@ -59,7 +62,7 @@ void setup() {
     if(error)
     {
       /* There was a problem detecting the MS5803 ... check your connections */
-      Serial.print("No MS5803 detected on port ");
+      Serial.print("Error detected on port ");
       Serial.print(i);
       Serial.println(" ... Check your wiring!");
       while(1);
@@ -97,11 +100,27 @@ void loop() {
      temperature_f = Bar1.getTemperature(FAHRENHEIT, ADC_512);
      
      /* Read pressure from the sensor in mbar. */
-     pressure_abs = Bar1.getPressure(ADC_4096);
+     pressure_mbar = Bar1.getPressure(ADC_4096);
+   
+     /* Convert pressure from mbar to psi. */
+     pressure_psi = pressure_mbar * MBARTOPSI;
+   
+     /* Convert pressure to force in lbs. */
+     force_lbs = pressure_psi * pocketarea[i];
+   
+     /* Convert force from lbs to N. */
+     //force_N = force_lbs * something;
      
      /* Print sensor pressure */
-     Serial.print("Pressure abs (mbar)= ");
-     Serial.println(pressure_abs);
+     Serial.print("Pressure (mbar)= ");
+     Serial.println(pressure_mbar);
+     
+     Serial.print("Pressure (psi)= ");
+     Serial.println(pressure_psi);
+   
+     /* Print force */
+     Serial.print("Force (lbs)= ");
+     Serial.println(force_lbs);
      
      /* Delay between sensor readings. */
      delay(100);
